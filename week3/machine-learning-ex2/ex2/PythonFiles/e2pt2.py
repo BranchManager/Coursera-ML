@@ -36,9 +36,11 @@ plt.ylabel('Microchip Test 2')
 # Specified in plot order
 plt.legend(['y = 1', 'y = 0'], loc='upper right')
 
+print(X)
 X = ComputeCost2.mapFeature(X[:,0],X[:,1])
 
-
+print(X)
+exit()
 
 
 # Initialize fitting parameters
@@ -55,12 +57,13 @@ cost, grad = ComputeCost2.costFunctionReg(initial_theta, X, y, lambda_)
 
 #print('Cost at initial theta (zeros): {:.3f}'.format(cost))
 print('HERE WE ARE')
-print(list(map('{:.4f}%'.format,cost)))
-
+#print(list(map('{:.4f}%'.format,cost)))
+print('{:.4f}%'.format(cost))
 print('Expected cost (approx)       : 0.693\n')
 
 print('Gradient at initial theta (zeros) - first five values only:')
-print(list(map('{:.4f}%'.format,grad[:5])))
+print(list(map('{:.4f}%'.format,*grad[:5])))
+#print("%4g"%(grad[:5]))
 #print('\t[{:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}]'.format(*grad[:5]))
 
 print('Expected gradients (approx) - first five values only:')
@@ -73,11 +76,51 @@ test_theta = np.ones(X.shape[1])
 cost, grad = ComputeCost2.costFunctionReg(test_theta, X, y, 10)
 
 print('------------------------------\n')
-print('Cost at test theta    : {:.2f}'.format(cost))
+#print('Cost at test theta    :',list(map('{:.4f}%'.format,cost)))
+print('{:.4f}%'.format(cost))
 print('Expected cost (approx): 3.16\n')
 
 print('Gradient at test theta - first five values only:')
-print('\t[{:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}]'.format(*grad[:5]))
+
+#print('\t[{:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}]'.format(*grad[:5]))
+print(list(map('{:.4f}%'.format,*grad[:5])))
 print('Expected gradients (approx) - first five values only:')
 print('\t[0.3460, 0.1614, 0.1948, 0.2269, 0.0922]')
 
+#################################################################################################################
+# Initialize fitting parameters
+initial_theta = np.zeros(X.shape[1])
+
+# Set regularization parameter lambda to 1 (you should vary this)
+lambda_ = 1
+
+# set options for optimize.minimize
+options= {'maxiter': 100}
+print(X)
+exit()
+res = opt.minimize(ComputeCost2.costFunctionReg,
+                        initial_theta,
+                        (X, y, lambda_),
+                        jac=True,
+                        method='TNC',
+                        options=options)
+
+# the fun property of OptimizeResult object returns
+# the value of costFunction at optimized theta
+cost = res.fun
+
+# the optimized theta is in the x property of the result
+theta = res.x
+
+ComputeCost2.plotDecisionBoundary(plotData, theta, X, y)
+pyplot.xlabel('Microchip Test 1')
+pyplot.ylabel('Microchip Test 2')
+pyplot.legend(['y = 1', 'y = 0'])
+pyplot.grid(False)
+pyplot.title('lambda = %0.2f' % lambda_)
+
+# Compute accuracy on our training set
+p = predict(theta, X)
+
+print('Train Accuracy: %.1f %%' % (np.mean(p == y) * 100))
+print('Expected accuracy (with lambda = 1): 83.1 % (approx)\n')
